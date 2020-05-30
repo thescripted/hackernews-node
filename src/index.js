@@ -7,10 +7,34 @@ const links = [{
     url: "String",
   }]
 
+let idCount = links.length
 const resolvers = {
   Query: {
     info: () => 'This is a GraphQL Info!',
     feed: () => links,
+    link: (parent, args) => {
+      const item = links.find(link => link.id === args.id);
+      return item;
+    },
+  },
+
+  Mutation: {
+    post: (parent, args) => {
+      const link = {
+        id: `link-${idCount++}`,
+        description: args.description,
+        url: args.url,
+      }
+      links.push(link)
+      return link
+    },
+
+    updateLink: (parent, args) => {
+      const item = links.find(link => link.id === args.id);
+      if (args.url) item.url = args.url;
+      if (args.description) item.description = args.description;
+      return item
+    }
   },
 
   Link: {
@@ -21,9 +45,8 @@ const resolvers = {
 
 }
 
-
 const server = new GraphQLServer({
-  typeDefs: './schema.graphql',
+  typeDefs: './src/schema.graphql',
   resolvers,
 })
 
